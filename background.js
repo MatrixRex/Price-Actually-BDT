@@ -2,7 +2,7 @@
 chrome.runtime.onInstalled.addListener(() => {
     chrome.contextMenus.create({
         id: "convert-to-bdt",
-        title: "Price Actually BDT: Convert '%s'",
+        title: "Price Actually in BDT: Convert '%s'",
         contexts: ["selection"]
     });
 });
@@ -15,22 +15,20 @@ async function getRates() {
     
     // Check if cache is valid
     if (data[CACHE_KEY] && (Date.now() - data[CACHE_KEY].timestamp < CACHE_DURATION)) {
-        return data[CACHE_KEY]; // Return the WHOLE object (rates + timestamp)
+        return data[CACHE_KEY]; 
     }
 
     try {
-        // Fetching from Frankfurter (Free, No Key)
-        const response = await fetch('https://api.frankfurter.app/latest?from=USD');
+        // REVERTED TO EXCHANGERATE-API V4 (Better currency support)
+        const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
         const json = await response.json();
         
         const cacheData = {
-            timestamp: Date.now(),
+            // Use their server time if available, otherwise local time
+            timestamp: (json.time_last_updated * 1000) || Date.now(),
             rates: json.rates
         };
         
-        // Add USD to itself for logic consistency
-        cacheData.rates.USD = 1; 
-
         await chrome.storage.local.set({ [CACHE_KEY]: cacheData });
         return cacheData;
     } catch (error) {

@@ -18,10 +18,10 @@ function createPopup(selectedText) {
     const box = document.createElement('div');
     box.id = 'bdt-converter-box';
 
-    // Format the timestamp to readable time
     const dateObj = new Date(lastUpdated);
     const dateString = dateObj.toLocaleDateString() + " " + dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
+    // Expanded Currency List
     box.innerHTML = `
         <div id="bdt-converter-header">
             <h3>Price Actually in BDT</h3>
@@ -40,7 +40,13 @@ function createPopup(selectedText) {
                 <option value="EUR" ${currency === 'EUR' ? 'selected' : ''}>EUR (€)</option>
                 <option value="GBP" ${currency === 'GBP' ? 'selected' : ''}>GBP (£)</option>
                 <option value="INR" ${currency === 'INR' ? 'selected' : ''}>INR (₹)</option>
+                <option value="SAR" ${currency === 'SAR' ? 'selected' : ''}>SAR (﷼)</option>
+                <option value="AED" ${currency === 'AED' ? 'selected' : ''}>AED (د.إ)</option>
+                <option value="MYR" ${currency === 'MYR' ? 'selected' : ''}>MYR (RM)</option>
+                <option value="CAD" ${currency === 'CAD' ? 'selected' : ''}>CAD (C$)</option>
+                <option value="AUD" ${currency === 'AUD' ? 'selected' : ''}>AUD (A$)</option>
                 <option value="JPY" ${currency === 'JPY' ? 'selected' : ''}>JPY (¥)</option>
+                <option value="CNY" ${currency === 'CNY' ? 'selected' : ''}>CNY (¥)</option>
             </select>
         </div>
 
@@ -66,7 +72,6 @@ function createPopup(selectedText) {
     document.body.appendChild(box);
     activePopup = box;
 
-    // Events
     document.getElementById('bdt-converter-close').onclick = () => {
         box.remove();
         activePopup = null;
@@ -98,26 +103,14 @@ function createPopup(selectedText) {
 
         if (!rates || !rates.BDT) return;
 
-        // 1. Get Exchange Rate
-        // Note: Frankfurter base is USD in our call. 
-        // If user selects USD, rate is rates.BDT.
-        // If user selects EUR, we need cross rate (1 EUR -> USD -> BDT).
-        
-        let conversionRate = 0;
-        
-        // Simple logic since our base is USD
         const rateToUsd = (selectedCurr === 'USD') ? 1 : (1 / rates[selectedCurr]); 
         const bdtRate = rates.BDT;
-        
-        // Effective Rate: 1 Unit of Selected = X BDT
         const effectiveRate = rateToUsd * bdtRate;
 
-        // 2. Math
         const totalBdtNoTax = amt * effectiveRate;
         const taxAmount = totalBdtNoTax * (taxRate / 100);
         const totalBdt = totalBdtNoTax + taxAmount;
 
-        // 3. UI Updates
         const formatMoney = (num) => {
             return num.toLocaleString('en-BD', { 
                 style: 'currency', 
@@ -130,7 +123,6 @@ function createPopup(selectedText) {
         document.getElementById('base-bdt').textContent = totalBdtNoTax.toLocaleString('en-BD', { maximumFractionDigits: 0 });
         document.getElementById('tax-bdt').textContent = taxAmount.toLocaleString('en-BD', { maximumFractionDigits: 0 });
         
-        // Update Rate Info
         document.getElementById('bdt-rate-display').textContent = `1 ${selectedCurr} = ${effectiveRate.toFixed(2)} BDT`;
     }
 
@@ -141,8 +133,11 @@ function createPopup(selectedText) {
         let currency = 'USD';
         if (text.includes('€')) currency = 'EUR';
         if (text.includes('£')) currency = 'GBP';
-        if (text.includes('₹')) currency = 'INR';
-        if (text.includes('¥')) currency = 'JPY';
+        if (text.includes('₹') || text.includes('Rs')) currency = 'INR';
+        if (text.includes('¥')) currency = 'JPY'; // Could be CNY too, but JPY is safer default
+        if (text.includes('RM')) currency = 'MYR';
+        if (text.includes('﷼')) currency = 'SAR';
+        if (text.includes('د.إ')) currency = 'AED';
         
         return { amount, currency };
     }
