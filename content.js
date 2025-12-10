@@ -43,18 +43,25 @@ function createPopup(selectedText) {
     // Create Unique Host
     const shadowHost = document.createElement('div');
     shadowHost.classList.add('price-actually-bdt-host'); 
+    shadowHost.setAttribute('data-darkreader-ignore', 'true'); 
     
     const shadow = shadowHost.attachShadow({ mode: 'open' });
 
     // CSS
     const style = document.createElement('style');
+    style.setAttribute('data-darkreader-ignore', 'true');
     style.textContent = `
-        :host { all: initial; font-family: 'Segoe UI', sans-serif; }
+        :host { 
+            all: initial; 
+            font-family: 'Segoe UI', sans-serif; 
+            color-scheme: light; /* Force light mode rendering */
+        }
         .bdt-box {
             position: fixed;
             bottom: 20px; right: 20px;
             width: 280px;
-            background: #ffffff; color: #333;
+            background: #ffffff !important; /* Enforce white background */
+            color: #333 !important; /* Enforce dark text */
             z-index: 2147483647;
             border-radius: 12px;
             box-shadow: 0 4px 25px rgba(0,0,0,0.2);
@@ -91,12 +98,40 @@ function createPopup(selectedText) {
 
         .row { margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
         label { font-size: 13px; font-weight: 600; color: #666; flex: 0 0 80px; }
-        input, select {
+        input, .curr-input {
             padding: 6px 8px; border: 1px solid #ccc; border-radius: 4px;
             flex: 1; font-size: 13px; max-width: 140px; background: white; color: #333;
+            text-align: right; box-sizing: border-box;
+            font-family: inherit;
         }
-        input { text-align: right; }
-        select { text-align: right; padding-right: 25px; cursor: pointer; }
+        
+        /* Custom Dropdown Wrapper to match specific alignment */
+        .currency-wrapper {
+            flex: 1; max-width: 140px; position: relative;
+        }
+        .curr-input {
+            width: 100%; max-width: 100%; cursor: text;
+        }
+
+        .currency-list {
+            position: absolute; top: calc(100% + 4px); right: 0; left: 0;
+            background: #ffffff; border: 1px solid #ddd; border-radius: 6px;
+            max-height: 220px; overflow-y: auto; z-index: 99999;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15); display: none;
+        }
+        /* Custom Scrollbar */
+        .currency-list::-webkit-scrollbar { width: 6px; }
+        .currency-list::-webkit-scrollbar-track { background: #f1f1f1; }
+        .currency-list::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+        .currency-list::-webkit-scrollbar-thumb:hover { background: #aaa; }
+
+        .currency-item {
+            padding: 8px 12px; font-size: 13px; cursor: pointer; text-align: right; 
+            border-bottom: 1px solid #f9f9f9; display: flex; justify-content: flex-end; align-items: center; gap: 6px;
+        }
+        .currency-item:last-child { border-bottom: none; }
+        .currency-item:hover, .currency-item.active { background: #f1f8e9; color: #2e7d32; }
+        .currency-item small { color: #888; font-size: 11px; }
 
         .result-box {
             background: #f1f8e9; border: 1px solid #c8e6c9; border-radius: 8px;
@@ -152,19 +187,23 @@ function createPopup(selectedText) {
         XDR: "SDR", XOF: "CFA", XPD: "oz", XPF: "₣", XPT: "oz", YER: "﷼", ZAR: "R", ZMW: "ZK", ZWL: "$"
     };
 
-    // 2. Generate <option> tags string
-    let currencyOptionsHtml = '';
-    currencyCodes.forEach(code => {
-        const isSelected = (code === currency) ? 'selected' : '';
-        const symbol = currencySymbols[code] ? ` (${currencySymbols[code]})` : '';
-        currencyOptionsHtml += `<option value="${code}" ${isSelected}>${code}${symbol}</option>`;
+    // 2. Prepare Currency Data for Custom Dropdown
+    const currencyData = currencyCodes.map(code => {
+        const symbol = currencySymbols[code];
+        const label = symbol ? `${code} (${symbol})` : code;
+        return { code, label, symbol };
     });
+
+    // Initial Display Label
+    const initialSymbol = currencySymbols[currency];
+    const initialLabel = initialSymbol ? `${currency} (${initialSymbol})` : currency;
 
     // HTML Structure
     const dateObj = new Date(lastUpdated);
     const dateString = dateObj.toLocaleDateString() + " " + dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
     const container = document.createElement('div');
+    container.setAttribute('data-darkreader-ignore', 'true');
     container.classList.add('bdt-box');
     
     container.innerHTML = `
@@ -185,9 +224,13 @@ function createPopup(selectedText) {
 
             <div class="row">
                 <label>Currency</label>
-                <select id="inp-currency">
-                    ${currencyOptionsHtml}
-                </select>
+                <div class="currency-wrapper">
+                    <input type="hidden" id="inp-currency" value="${currency}">
+                    <input type="text" id="inp-currency-search" class="curr-input" value="${initialLabel}" placeholder="Search..." autocomplete="off">
+                    <div id="currency-list" class="currency-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
             </div>
 
             <div class="row">
@@ -342,8 +385,133 @@ function createPopup(selectedText) {
         }
     }
 
-    const inputs = shadow.querySelectorAll('input, select');
+    const inputs = shadow.querySelectorAll('input:not(#inp-currency-search), select');
     inputs.forEach(input => input.addEventListener('input', updateCalculation));
+
+    // ============================
+    // SEARCHABLE DROPDOWN LOGIC
+    // ============================
+    const searchInp = shadow.getElementById('inp-currency-search');
+    const currencyInp = shadow.getElementById('inp-currency');
+    const listEl = shadow.getElementById('currency-list');
+    let isDropdownOpen = false;
+
+    // Render List Function
+    function renderCurrencyList(filterText = '') {
+        const filter = filterText.toLowerCase();
+        listEl.innerHTML = '';
+        
+        const filtered = currencyData.filter(c => 
+            c.code.toLowerCase().includes(filter) || 
+            (c.symbol && c.symbol.toLowerCase().includes(filter))
+        );
+
+        if (filtered.length === 0) {
+            const noRes = document.createElement('div');
+            noRes.textContent = "No currency found";
+            noRes.style.padding = "8px 12px";
+            noRes.style.color = "#999";
+            noRes.style.fontSize = "12px";
+            noRes.style.textAlign = "center";
+            listEl.appendChild(noRes);
+        } else {
+            filtered.forEach(c => {
+                const item = document.createElement('div');
+                item.className = 'currency-item';
+                if (c.code === currencyInp.value) item.classList.add('active');
+                
+                // Content: "Code (Symbol)" or just "Code"
+                const symbolText = c.symbol ? `<small>(${c.symbol})</small>` : '';
+                item.innerHTML = `${symbolText} ${c.code}`;
+                
+                item.onclick = () => {
+                    selectCurrency(c);
+                };
+                listEl.appendChild(item);
+            });
+        }
+    }
+
+    function selectCurrency(cObj) {
+        currencyInp.value = cObj.code;
+        searchInp.value = cObj.label;
+        closeDropdown();
+        updateCalculation(); // Trigger recalc
+    }
+
+    function openDropdown() {
+        renderCurrencyList(''); // Show all on open
+        listEl.style.display = 'block';
+        isDropdownOpen = true;
+        
+        // Auto scroll to selected
+        setTimeout(() => {
+            const active = listEl.querySelector('.active');
+            if (active) active.scrollIntoView({ block: 'nearest' });
+        }, 0);
+    }
+
+    function closeDropdown() {
+        // If user left raw text that matches nothing perfectly, revert? 
+        // Or cleaner: Revert visual to currently selected hidden value
+        const currentCode = currencyInp.value;
+        const currentObj = currencyData.find(c => c.code === currentCode);
+        if (currentObj) searchInp.value = currentObj.label;
+
+        listEl.style.display = 'none';
+        isDropdownOpen = false;
+    }
+
+    // Event Listeners for Search Input
+    
+    // 1. Focus/Click -> Open
+    searchInp.addEventListener('focus', () => {
+        searchInp.select(); // Select all text for easy replacement
+        openDropdown();
+    });
+    searchInp.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent bubble causing immediate close
+        if (!isDropdownOpen) openDropdown();
+    });
+
+    // 2. Input -> Filter
+    searchInp.addEventListener('input', (e) => {
+        if (!isDropdownOpen) {
+            listEl.style.display = 'block';
+            isDropdownOpen = true;
+        }
+        renderCurrencyList(e.target.value);
+    });
+
+    // 3. Click Outside -> Close
+    document.addEventListener('click', (e) => {
+        // We need to check if click target is inside our shadow DOM wrapper
+        // Since we are in shadow DOM, 'e.target' might be the host. 
+        // But we added listener to document. 
+        // Use a clearer scoped listener?
+    });
+    // Actually, stick to shadow root click listener for local events
+    shadow.addEventListener('click', (e) => {
+        if (!searchInp.contains(e.target) && !listEl.contains(e.target)) {
+            if (isDropdownOpen) closeDropdown();
+        }
+    });
+    // Document listener for clicks outside component entirely
+    window.addEventListener('click', (e) => {
+       // logic already handled mostly by persistent check, but for dropdown:
+       // The dropdown is inside the shadow DOM. A click outside the shadow host triggers document click.
+       // We can just rely on the fact that if the popup closes, the dropdown dies.
+       // But if persistent is ON, we still want dropdown to close if clicking elsewhere in the page.
+       // This is tricky from inside. Simplest is: if the focus leaves the input, we close lightly?
+    });
+
+    // Handle blur - delay to allow item click
+    searchInp.addEventListener('blur', () => {
+        setTimeout(() => {
+            if (isDropdownOpen) closeDropdown();
+        }, 200);
+    });
+
     updateCalculation();
 
     function updateCalculation() {
@@ -367,7 +535,7 @@ function createPopup(selectedText) {
 
         shadow.getElementById('res-total').textContent = formatMoney(totalBdt);
         shadow.getElementById('res-base').textContent = totalBdtNoTax.toLocaleString('en-BD', { maximumFractionDigits: 0 });
-        shadow.getElementById('res-tax').textContent = taxAmount.toLocaleString('en-BD', { maximumFractionDigits: 0 });
+        shadow.getElementById('res-tax').textContent = taxAmount.toLocaleString('en-BD', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         shadow.getElementById('res-rate').textContent = `1 ${selectedCurr} = ${effectiveRate.toFixed(2)} BDT`;
     }
 
