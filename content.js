@@ -8,7 +8,7 @@ let currentSettings = {
     defaultTax: 15         // default tax %
 };
 
-// SVG Icons (Inline)
+// SVG Icons
 const ICONS = {
     settings: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>`,
     trash: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>`,
@@ -24,13 +24,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 async function initPopup(selection) {
-    // 1. Load Settings
     const data = await chrome.storage.local.get(['userSettings']);
     if (data.userSettings) {
         currentSettings = { ...currentSettings, ...data.userSettings };
     }
 
-    // 2. Handle Single Instance Rule
     if (currentSettings.singleInstance) {
         const existingHosts = document.querySelectorAll('.price-actually-bdt-host');
         existingHosts.forEach(el => el.remove());
@@ -71,7 +69,6 @@ function createPopup(selectedText) {
             to { transform: translateY(0); opacity: 1; }
         }
         
-        /* Header */
         .header {
             display: flex; justify-content: space-between; align-items: center;
             border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 15px;
@@ -80,7 +77,6 @@ function createPopup(selectedText) {
         h3 { margin: 0; font-size: 16px; font-weight: 700; color: #444; pointer-events: none; }
         .header-actions { display: flex; gap: 8px; align-items: center; }
         
-        /* Buttons */
         .icon-btn {
             cursor: pointer; color: #aaa; background: none; border: none; padding: 4px; 
             display: flex; align-items: center; justify-content: center;
@@ -90,11 +86,9 @@ function createPopup(selectedText) {
         .close-btn:hover { color: #d32f2f; background: #ffebee; }
         .trash-btn:hover { color: #d32f2f; background: #ffebee; }
 
-        /* Main View */
         .view-main { display: block; }
         .view-settings { display: none; }
 
-        /* Rows */
         .row { margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
         label { font-size: 13px; font-weight: 600; color: #666; flex: 0 0 80px; }
         input, select {
@@ -104,7 +98,6 @@ function createPopup(selectedText) {
         input { text-align: right; }
         select { text-align: right; padding-right: 25px; cursor: pointer; }
 
-        /* Result */
         .result-box {
             background: #f1f8e9; border: 1px solid #c8e6c9; border-radius: 8px;
             padding: 15px; margin-top: 15px; text-align: center;
@@ -114,15 +107,13 @@ function createPopup(selectedText) {
         .breakdown { font-size: 11px; color: #666; margin-top: 8px; }
         .meta { margin-top: 12px; font-size: 10px; color: #999; display: flex; justify-content: space-between; border-top: 1px solid #f5f5f5; padding-top: 8px; }
 
-        /* Settings View Styles */
         .settings-title { font-size: 14px; font-weight: bold; margin-bottom: 15px; color: #333; }
         .setting-item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-        .setting-item label { font-weight: normal; flex: initial; cursor: pointer; }
+        .setting-item label { font-weight: normal; flex: 1; cursor: pointer; }
         
-        /* Toggle Switch Fix: Prevent Flex Stretch */
-        .switch { 
+        label.switch { 
             position: relative; display: inline-block; width: 34px; height: 20px; 
-            /* FIX: Prevents oval stretching */
+            flex: none;
         }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
@@ -136,6 +127,16 @@ function createPopup(selectedText) {
         }
         .btn-save:hover { background: #1b5e20; }
     `;
+
+    // 1. Get all currency codes from rates object
+    const currencyCodes = rates ? Object.keys(rates).sort() : ['USD'];
+    
+    // 2. Generate <option> tags string
+    let currencyOptionsHtml = '';
+    currencyCodes.forEach(code => {
+        const isSelected = (code === currency) ? 'selected' : '';
+        currencyOptionsHtml += `<option value="${code}" ${isSelected}>${code}</option>`;
+    });
 
     // HTML Structure
     const dateObj = new Date(lastUpdated);
@@ -163,17 +164,7 @@ function createPopup(selectedText) {
             <div class="row">
                 <label>Currency</label>
                 <select id="inp-currency">
-                    <option value="USD" ${currency === 'USD' ? 'selected' : ''}>USD ($)</option>
-                    <option value="EUR" ${currency === 'EUR' ? 'selected' : ''}>EUR (€)</option>
-                    <option value="GBP" ${currency === 'GBP' ? 'selected' : ''}>GBP (£)</option>
-                    <option value="INR" ${currency === 'INR' ? 'selected' : ''}>INR (₹)</option>
-                    <option value="SAR" ${currency === 'SAR' ? 'selected' : ''}>SAR (﷼)</option>
-                    <option value="AED" ${currency === 'AED' ? 'selected' : ''}>AED (د.إ)</option>
-                    <option value="MYR" ${currency === 'MYR' ? 'selected' : ''}>MYR (RM)</option>
-                    <option value="CAD" ${currency === 'CAD' ? 'selected' : ''}>CAD (C$)</option>
-                    <option value="AUD" ${currency === 'AUD' ? 'selected' : ''}>AUD (A$)</option>
-                    <option value="JPY" ${currency === 'JPY' ? 'selected' : ''}>JPY (¥)</option>
-                    <option value="CNY" ${currency === 'CNY' ? 'selected' : ''}>CNY (¥)</option>
+                    ${currencyOptionsHtml}
                 </select>
             </div>
 
@@ -268,26 +259,18 @@ function createPopup(selectedText) {
     const viewSettings = shadow.getElementById('view-settings');
     const btnSettings = shadow.getElementById('btn-settings');
     const btnClose = shadow.getElementById('btn-close');
-    const btnDeleteAll = shadow.getElementById('btn-delete-all'); // New Button
+    const btnDeleteAll = shadow.getElementById('btn-delete-all');
     const btnSave = shadow.getElementById('btn-save-settings');
 
     const checkPersistent = shadow.getElementById('set-persistent');
     const checkSingle = shadow.getElementById('set-single');
 
-    // === NEW LOGIC: Enforce Relationship ===
     checkSingle.addEventListener('change', (e) => {
         if (!e.target.checked) {
-            // If Single Instance is turned OFF (Multi-mode), Force Persistent ON
             checkPersistent.checked = true;
-            // Optional: You could disable checkPersistent here to prevent unchecking
-            // checkPersistent.disabled = true; 
-        } else {
-            // If Single Instance turned ON, user is free to toggle Persistent
-            // checkPersistent.disabled = false;
-        }
+        } 
     });
 
-    // Toggle Settings View
     btnSettings.onclick = () => {
         if (viewMain.style.display !== 'none') {
             viewMain.style.display = 'none';
@@ -300,18 +283,15 @@ function createPopup(selectedText) {
         }
     };
 
-    // Close Popup (This instance only)
     btnClose.onclick = () => {
         shadowHost.remove();
     };
 
-    // Delete All Popups (Global Cleanup)
     btnDeleteAll.onclick = () => {
         const allHosts = document.querySelectorAll('.price-actually-bdt-host');
         allHosts.forEach(el => el.remove());
     };
 
-    // Save Settings
     btnSave.onclick = () => {
         const newSettings = {
             persistent: checkPersistent.checked,
@@ -319,35 +299,27 @@ function createPopup(selectedText) {
             defaultTax: parseFloat(shadow.getElementById('set-def-tax').value) || 0
         };
 
-        // Save to Chrome
         chrome.storage.local.set({ userSettings: newSettings }, () => {
             currentSettings = newSettings;
-            
-            // Apply new Tax immediately
             shadow.getElementById('inp-tax').value = currentSettings.defaultTax;
             updateCalculation(); 
-
-            // Go back to main view
             viewMain.style.display = 'block';
             viewSettings.style.display = 'none';
             btnSettings.style.background = 'none';
         });
     };
 
-    // 3. Click Outside Logic
     setTimeout(() => {
         document.addEventListener('click', closeOnClickOutside);
     }, 100);
 
     function closeOnClickOutside(e) {
         if (currentSettings.persistent) return;
-
         if (shadowHost && document.body.contains(shadowHost) && e.target !== shadowHost) {
             shadowHost.remove();
         }
     }
 
-    // 4. Calculation Logic
     const inputs = shadow.querySelectorAll('input, select');
     inputs.forEach(input => input.addEventListener('input', updateCalculation));
     updateCalculation();
@@ -381,7 +353,9 @@ function createPopup(selectedText) {
         if (!text) return { amount: 0, currency: 'USD' };
         const numberMatch = text.match(/[\d,.]+/);
         const amount = numberMatch ? parseFloat(numberMatch[0].replace(/,/g, '')) : 0;
+        
         let currency = 'USD';
+        // Expanded Currency Detection for common symbols
         if (text.includes('€')) currency = 'EUR';
         if (text.includes('£')) currency = 'GBP';
         if (text.includes('₹') || text.includes('Rs')) currency = 'INR';
@@ -389,6 +363,15 @@ function createPopup(selectedText) {
         if (text.includes('RM')) currency = 'MYR';
         if (text.includes('﷼')) currency = 'SAR';
         if (text.includes('د.إ')) currency = 'AED';
+        if (text.includes('C$')) currency = 'CAD';
+        if (text.includes('A$')) currency = 'AUD';
+        if (text.includes('৳') || text.includes('Tk')) currency = 'BDT';
+
+        // Check if detected currency exists in rates, otherwise default to USD
+        if (rates && !rates[currency]) {
+            currency = 'USD';
+        }
+
         return { amount, currency };
     }
 }
