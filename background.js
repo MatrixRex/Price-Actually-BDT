@@ -1,42 +1,26 @@
-// 1. On Install/Update: Create Menu AND Inject Scripts
+// 1. On Install: Context Menu & Auto-Inject
 chrome.runtime.onInstalled.addListener(async () => {
-    // Create the menu item
     chrome.contextMenus.create({
         id: "convert-to-bdt",
-        title: "Price Actually in BDT: Convert '%s'",
-        contexts: ["selection"]
+        title: "Price Actually in BDT", // Simplified title since it works on page too
+        contexts: ["selection", "page"] // <--- ADDED "page"
     });
 
-    // === NEW: Auto-Inject into existing tabs ===
-    // Find all tabs that are http or https (skips chrome:// settings pages)
+    // Auto-inject logic (same as before)
     const tabs = await chrome.tabs.query({ url: ["http://*/*", "https://*/*"] });
-
     for (const tab of tabs) {
         try {
-            // Inject the logic
-            await chrome.scripting.executeScript({
-                target: { tabId: tab.id },
-                files: ["content.js"]
-            });
-            // Inject the style
-            await chrome.scripting.insertCSS({
-                target: { tabId: tab.id },
-                files: ["styles.css"]
-            });
-        } catch (err) {
-            // Some tabs (like Chrome Web Store) block scripting. We ignore those errors.
-            // console.log('Could not inject into tab', tab.id);
-        }
+            await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ["content.js"] });
+        } catch (err) {}
     }
 });
 
-// Helper: Fetch Rates
+// Helper: Fetch Rates (Same as before)
 async function getRates() {
     const CACHE_KEY = 'currency_rates';
-    const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 Hours
+    const CACHE_DURATION = 24 * 60 * 60 * 1000; 
 
     const data = await chrome.storage.local.get([CACHE_KEY]);
-    
     if (data[CACHE_KEY] && (Date.now() - data[CACHE_KEY].timestamp < CACHE_DURATION)) {
         return data[CACHE_KEY]; 
     }
@@ -44,42 +28,28 @@ async function getRates() {
     try {
         const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
         const json = await response.json();
-        
-        const cacheData = {
-            timestamp: (json.time_last_updated * 1000) || Date.now(),
-            rates: json.rates
-        };
-        
+        const cacheData = { timestamp: (json.time_last_updated * 1000) || Date.now(), rates: json.rates };
         await chrome.storage.local.set({ [CACHE_KEY]: cacheData });
         return cacheData;
-    } catch (error) {
-        console.error("Rate fetch failed", error);
-        return null; 
-    }
+    } catch (error) { return null; }
 }
 
-// 2. Handle Right-Click
+// 2. Handle Click
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     if (info.menuItemId === "convert-to-bdt") {
         const data = await getRates();
-        
         if (data) {
-            // === NEW: Graceful Error Handling ===
             try {
-                // Try to send the message
                 await chrome.tabs.sendMessage(tab.id, {
                     action: "open_converter",
-                    selection: info.selectionText,
+                    selection: info.selectionText || "0", // <--- Handle undefined selection
                     rates: data.rates,
                     timestamp: data.timestamp
                 });
             } catch (error) {
-                // If it fails (script missing), alert the user
                 chrome.scripting.executeScript({
                     target: { tabId: tab.id },
-                    func: () => {
-                        alert("Please refresh this page to use the BDT Converter.");
-                    }
+                    func: () => alert("Please refresh this page to use the BDT Converter.")
                 });
             }
         }

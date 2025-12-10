@@ -20,10 +20,8 @@
             ],
             "js": [
                 "content.js"
-            ],
-            "css": [
-                "styles.css"
             ]
+            
         }
     ],
     "icons": {
