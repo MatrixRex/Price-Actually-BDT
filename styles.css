@@ -1,0 +1,136 @@
+#bdt-converter-box {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 280px;
+    background: #ffffff;
+    z-index: 2147483647; 
+    border-radius: 12px;
+    box-shadow: 0 4px 25px rgba(0,0,0,0.2);
+    border: 1px solid #ddd;
+    font-family: 'Segoe UI', sans-serif;
+    color: #333;
+    animation: slideIn 0.3s ease-out;
+    padding: 16px;
+    box-sizing: border-box;
+    text-align: left; 
+}
+
+@keyframes slideIn {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+#bdt-converter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+    margin-bottom: 15px;
+}
+
+#bdt-converter-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #444;
+}
+
+#bdt-converter-close {
+    cursor: pointer;
+    font-size: 20px;
+    color: #aaa;
+    background: none;
+    border: none;
+    padding: 0;
+    line-height: 1;
+}
+
+#bdt-converter-close:hover {
+    color: #d32f2f;
+}
+
+
+.bdt-row {
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; 
+}
+
+.bdt-row label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #666;
+    
+    flex: 0 0 80px; 
+    white-space: nowrap; 
+}
+
+
+.bdt-row input, 
+.bdt-row select {
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    flex: 1; 
+    font-size: 13px;
+    max-width: 140px; 
+}
+
+
+.bdt-row input {
+    text-align: right;
+}
+
+
+.bdt-row select {
+    text-align: right;
+    padding-right: 30px; 
+    cursor: pointer;
+}
+
+.bdt-result-container {
+    background: #f1f8e9; 
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 15px;
+    text-align: center;
+    border: 1px solid #c8e6c9;
+}
+
+.bdt-total-label {
+    font-size: 11px;
+    color: #558b2f;
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    display: block;
+    margin-bottom: 5px;
+}
+
+#bdt-result {
+    font-size: 26px;
+    font-weight: 800;
+    color: #2e7d32;
+    display: block;
+    line-height: 1.2;
+}
+
+.bdt-breakdown {
+    font-size: 11px;
+    color: #666;
+    margin-top: 8px;
+}
+
+
+.bdt-meta-info {
+    margin-top: 12px;
+    font-size: 10px;
+    color: #999;
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid #f5f5f5;
+    padding-top: 8px;
+}
