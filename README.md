@@ -1,67 +1,58 @@
-# Price Actually in BDT
+# Price Actually in BDT (প্রাইস অ্যাকচুয়ালি ইন বিডিটি) 💸
+
+[English Version](README_EN.md)
 
 [![Latest Release](https://img.shields.io/github/v/release/MatrixRex/Price-Actually-BDT?label=Download&color=2e7d32&logo=github)](https://github.com/MatrixRex/Price-Actually-BDT/releases/latest)
 
-**Stop Googling "USD to BDT" and doing the tax math in your head.**
+**অনলাইন শপিংয়ে "কত ডলার" মানে আসলে "ব্যাংক কত টাকা কাটবে" নিয়ে দুশ্চিন্তা?**
 
-**Price Actually in BDT** is a Chrome Extension that instantly converts foreign prices into Bangladeshi Taka (BDT). It calculates the *real* cost (Current Rate + Bank Tax/VAT) via a right-click, so you know exactly how much will be deducted from your card.
+সমাধান এই ক্রোম এক্সটেনশন **Price Actually in BDT** 
 
-![alt text](images/showcase.jpg)
+![showcase](images/showcase.jpg)
 
-## Features
+## এক নজরে ফিচারসমূহ ✨
 
-### 🚀 Core Functionality
-* **Context Aware:** Highlight any price (e.g., "$50") and right-click to convert instantly.
-* **Anywhere Access:** Right-click anywhere on a page (even without selecting text) to open the tool with a default value of 0.
-* **Smart Parsing:** Automatically detects currency symbols (€, £, ₹, ¥, ﷼, etc.) and formats numbers.
-* **160+ Currencies:** Supports major currencies including USD, EUR, GBP, INR, SAR, AED, MYR, CAD, AUD, JPY, and CNY.
 
-### 🎛️ UI & Usability
-* **Draggable Interface:** Click and drag the header to move the popup anywhere on the screen.
-* **Shadow DOM:** The UI is isolated from the webpage, meaning website styles won't break it, and Dark Mode extensions won't mess up the colors.
-* **Auto-Inject:** Works immediately on already open tabs upon installation (no refresh needed).
+* **সিলেক্ট করুন আর দেখুন:** ওয়েবসাইটের যেকোনো দাম (যেমন: "$19.99") হাইলাইট করে রাইট-ক্লিক করলেই টাকায় দেখতে পারবেন। পেজের যেকোনো খালি জায়গায় রাইট-ক্লিক করে ক্যালকুলেটরটি ওপেন করা যাবে। 
+* **সব কারেন্সি চেনে:** ডলার, ইউরো, পাউন্ড থেকে শুরু করে রিয়াল, দিনার কিংবা রুপি—সবই এর চেনা। সিম্বল দেখলেই ও বুঝে নেয় ওটা কোন দেশের টাকা। ১৬০+ কারেন্সি সাপোর্ট করে এটি!
 
-### ⚙️ Customizable Settings
-* **Persistent Mode:** Toggle to keep the popup open even when you click outside of it.
-* **Multi-Instance Support:** Allow multiple calculators to be open on the screen at once (great for comparing prices).
-* **Default Tax %:** Set your preferred VAT/Tax rate (defaults to 15%) so you don't have to type it every time.
+* **যেখানে খুশি রাখা:** ড্র্যাগেবল ইন্টারফেস, চাইলে মাউস দিয়ে টেনে পপআপটি স্ক্রিনের যেকোনো কোণায় রেখে দিয়ে কাজ সারতে পারেন। 
 
-## Installation
+* **ইন্সটল করলেই রেডি:** ব্রাউজার রিফ্রেশ দেওয়ার ঝামেলা নেই, ইন্সটল করেই কাজে নেমে পড়ুন।
 
-1.  **Download** the `.zip` file from the [Latest Release](https://github.com/MatrixRex/Price-Actually-BDT/releases/latest).
-2.  **Unzip** the file into a folder.
-3.  Open Google Chrome and navigate to `chrome://extensions/`.
-4.  Enable **Developer mode** (toggle in the top-right corner).
-5.  Click **Load unpacked**.
-6.  Select the folder where you unzipped the extension.
-7.  That's it! Right-click on any page to test it.
+* **একাধিক ক্যালকুলেটর:** চাইলে এক স্ক্রিনে অনেকগুলো পপআপ খুলে রেখে দামের তুলনা করতে পারেন।
+* **পরিবর্তন যোগ্য ট্যাক্স:** আমাদের ব্যাংকগুলো সাধারণত ১৫% ট্যাক্স কাটে। কিন্তু আপনার পছন্দমতো ট্যাক্স রেট ডিফল্ট হিসেবে সেট করে দিন, বারবার টাইপ করার দরকার নেই।
 
-## How to Use
+## ইন্সটলেশন (সহজ ৫ ধাপ) 🛠️
 
-### Basic Conversion
-1.  Highlight a price (e.g., **$199**).
-2.  Right-click and select **Price Actually in BDT**.
-3.  The popup shows the total BDT cost (Base Price + Tax).
+১. [সর্বশেষ রিলিজ](https://github.com/MatrixRex/Price-Actually-BDT/releases/latest) থেকে `.zip` ফাইলটি নামিয়ে নিন।  
+২. জিপ ফাইলটি সুবিধামতো ফোল্ডারে **আনজিপ** করুন।  
+৩. ক্রোম ব্রাউজারের অ্যাড্রেস বারে `chrome://extensions/` লিখে এন্টার দিন।  
+৪. উপরের ডান কোণা থেকে **Developer mode** অন করে দিন।  
+৫. **Load unpacked** বাটনে ক্লিক করে আনজিপ করা ওই ফোল্ডারটি সিলেক্ট করুন।
 
-### Using the Controls
-* **⚙️ Settings:** Click the gear icon to toggle **Persistent Mode**, **Single Instance**, or change your **Default Tax**.
-* **🗑️ Clear All:** Click the trash icon to instantly close all open popups on the screen.
-* **Drag:** Click and hold the top header text to move the box.
+**ব্যস! এবার ব্যাবহার করার পালা!**
 
-## Technical Details
+## কিভাবে ব্যবহার করবেন? 🤔
 
-* **Manifest V3:** Built using the latest modern Chrome Extension standards.
-* **Shadow DOM:** All CSS is injected programmatically into a Shadow Root, ensuring 100% style isolation from the host page.
-* **No External CSS File:** Styles are embedded in `content.js` for cleaner distribution and encapsulation.
-* **ExchangeRate-API:** Fetches daily rates (USD Base) and caches them locally for 24 hours to ensure speed and offline capability.
-* **Permissions:**
-    * `contextMenus`: For the right-click integration.
-    * `storage`: To save user preferences and cache rates.
-    * `scripting` & `host_permissions`: To inject the interface into tabs programmatically.
+* **দাম দেখুন:** যেকোনো দাম সিলেক্ট করুন → রাইট ক্লিক → **Price Actually in BDT**। অথবা খালি যায়গায় রাইট ক্লিক করেও ক্যালকুলেটর টি ব্যাবহার করা যাবে।
+* **সেটিংস:** গিয়ার আইকনে (⚙️) ক্লিক করে আপনার পছন্দমতো ট্যাক্স রেট বা মোড পরিবর্তন করুন।
+* **Persistent Popup:** এইটা অন থাকলে পপআপের বাইরে ক্লিক করলেও পপআপ বন্ধ হবে না।
+* **Single Instance:** এইটা অন থাকলে নতুন পপআপ খুললে পুরানো পপআপ বন্ধ হবে।
+* **Default Tax:** এইখানে আপনার পছন্দমতো ট্যাক্স রেট সেট করুন।
+* **ঝটপট মুছে ফেলুন:** স্ক্রিনের সব পপআপ এক ক্লিকেই মুছে ফেলতে ট্র্যাশ আইকন (🗑️) ব্যবহার করুন।
 
-## File Structure
+## টেকনিক্যাল কিছু গালভরা বুলি 🤓
 
-* `manifest.json`: Configuration and permissions.
-* `background.js`: Handles context menu events, API fetching, and caching logic.
-* `content.js`: The core logic. Contains the UI rendering, Shadow DOM creation, Drag-and-Drop logic, and Settings management.
-* `images/`: Contains extension icons.
+* **Manifest V3:** ক্রোম এক্সটেনশনের একদম আধুনিক আর নিরাপদ ভার্সনে তৈরি।
+* **ExchangeRate-API:** একদম লেটেস্ট এক্সচেঞ্জ রেট ফেচ করা হয় এবং ২৪ ঘণ্টার জন্য ক্যাশ করে রাখা হয়, যাতে বারবার ইন্টারনেটে হিট না করতে হয়।
+
+## ফোল্ডার স্ট্রাকচার 📂
+
+* `manifest.json`: এক্সটেনশনের মাথা।
+* `background.js`: পর্দার অন্তরালে সব কারেন্সি রেট আর রাইট-ক্লিকের হিসাব সামলায়।
+* `content.js`: যা দেখছেন তার সবটাই এখানে। নকশা থেকে শুরু করে ড্র্যাগ-অ্যান্ড-ড্রপ সব লজিক।
+* `images/`: আইকন।
+
+---
+**শুভ কেনাকাটা! ❤️**
