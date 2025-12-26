@@ -219,7 +219,7 @@ function createPopup(selectedText) {
         <div id="view-main" class="view-main">
             <div class="row">
                 <label>Price</label>
-                <input type="number" id="inp-amount" value="${amount}">
+                <input type="text" id="inp-amount" value="${amount}">
             </div>
 
             <div class="row">
@@ -235,7 +235,7 @@ function createPopup(selectedText) {
 
             <div class="row">
                 <label>Tax (%)</label>
-                <input type="number" id="inp-tax" value="${currentSettings.defaultTax}">
+                <input type="text" id="inp-tax" value="${currentSettings.defaultTax}">
             </div>
 
             <div class="result-box">
@@ -273,7 +273,7 @@ function createPopup(selectedText) {
 
             <div class="setting-item">
                 <label for="set-def-tax">Default VAT (%)</label>
-                <input type="number" id="set-def-tax" value="${currentSettings.defaultTax}" style="max-width: 60px;">
+                <input type="text" id="set-def-tax" value="${currentSettings.defaultTax}" style="max-width: 60px;">
             </div>
 
             <button class="btn-save" id="btn-save-settings">Save & Close</button>
@@ -361,7 +361,7 @@ function createPopup(selectedText) {
         const newSettings = {
             persistent: checkPersistent.checked,
             singleInstance: checkSingle.checked,
-            defaultTax: parseFloat(shadow.getElementById('set-def-tax').value) || 0
+            defaultTax: safeEval(shadow.getElementById('set-def-tax').value)
         };
 
         chrome.storage.local.set({ userSettings: newSettings }, () => {
@@ -515,8 +515,8 @@ function createPopup(selectedText) {
     updateCalculation();
 
     function updateCalculation() {
-        const amt = parseFloat(shadow.getElementById('inp-amount').value) || 0;
-        const taxRate = parseFloat(shadow.getElementById('inp-tax').value) || 0;
+        const amt = safeEval(shadow.getElementById('inp-amount').value);
+        const taxRate = safeEval(shadow.getElementById('inp-tax').value);
         const selectedCurr = shadow.getElementById('inp-currency').value;
 
         if (!rates || !rates.BDT) return;
@@ -537,6 +537,28 @@ function createPopup(selectedText) {
         shadow.getElementById('res-base').textContent = totalBdtNoTax.toLocaleString('en-BD', { maximumFractionDigits: 0 });
         shadow.getElementById('res-tax').textContent = taxAmount.toLocaleString('en-BD', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         shadow.getElementById('res-rate').textContent = `1 ${selectedCurr} = ${effectiveRate.toFixed(2)} BDT`;
+    }
+
+    function safeEval(str) {
+        if (!str) return 0;
+        try {
+            // Remove any characters that aren't numbers, operators, dots or parentheses
+            const sanitized = str.replace(/[^-+*/().0-9]/g, '');
+            if (!sanitized) return 0;
+            
+            // Basic validation to prevent common malformed expression crashes
+            // Check for empty parentheses or double operators (not counting negative numbers)
+            if (/\(\)/.test(sanitized) || /[\+\*\/]{2,}/.test(sanitized)) return 0;
+
+            // Use Function constructor for controlled evaluation in a restricted scope
+            // This is safer than eval() and avoids global scope access
+            const result = new Function(`'use strict'; return (${sanitized})`)();
+            
+            return (typeof result === 'number' && isFinite(result)) ? result : 0;
+        } catch (e) {
+            console.error('Math evaluation error:', e);
+            return 0;
+        }
     }
 
     function parseSelection(text) {
