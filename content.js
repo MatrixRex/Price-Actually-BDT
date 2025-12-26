@@ -515,9 +515,26 @@ function createPopup(selectedText) {
     updateCalculation();
 
     function updateCalculation() {
-        const amt = safeEval(shadow.getElementById('inp-amount').value);
-        const taxRate = safeEval(shadow.getElementById('inp-tax').value);
+        const amtStr = shadow.getElementById('inp-amount').value;
+        const taxStr = shadow.getElementById('inp-tax').value;
+        const amt = safeEval(amtStr);
+        const taxRate = safeEval(taxStr);
         const selectedCurr = shadow.getElementById('inp-currency').value;
+
+        // Display results in label if expression is found
+        const labelEl = shadow.querySelector('.total-label');
+        const hasAmtOp = /[+\-*/]/.test(amtStr);
+        const hasTaxOp = /[+\-*/]/.test(taxStr);
+
+        if (hasAmtOp || hasTaxOp) {
+            const resP = Number.isInteger(amt) ? amt : amt.toFixed(2);
+            const resT = Number.isInteger(taxRate) ? taxRate : taxRate.toFixed(2);
+            if (hasAmtOp && hasTaxOp) labelEl.textContent = `P: ${resP}, T: ${resT}%`;
+            else if (hasAmtOp) labelEl.textContent = `Price Result: ${resP}`;
+            else labelEl.textContent = `Tax Result: ${resT}%`;
+        } else {
+            labelEl.textContent = 'Total Estimate';
+        }
 
         if (!rates || !rates.BDT) return;
 
@@ -542,18 +559,54 @@ function createPopup(selectedText) {
     function safeEval(str) {
         if (!str) return 0;
         try {
-            // Remove any characters that aren't numbers, operators, dots or parentheses
-            const sanitized = str.replace(/[^-+*/().0-9]/g, '');
-            if (!sanitized) return 0;
-            
-            // Basic validation to prevent common malformed expression crashes
-            // Check for empty parentheses or double operators (not counting negative numbers)
-            if (/\(\)/.test(sanitized) || /[\+\*\/]{2,}/.test(sanitized)) return 0;
+            // 1. Tokenize: Numbers, operators, and parentheses
+            const tokens = str.match(/[0-9.]+|[-+*/()]/g);
+            if (!tokens) return 0;
 
-            // Use Function constructor for controlled evaluation in a restricted scope
-            // This is safer than eval() and avoids global scope access
-            const result = new Function(`'use strict'; return (${sanitized})`)();
-            
+            let pos = 0;
+            const peek = () => tokens[pos];
+            const consume = () => tokens[pos++];
+
+            // 2. Recursive Descent Parser following operator precedence
+            // Expr   -> Term (('+' | '-') Term)*
+            // Term   -> Factor (('*' | '/') Factor)*
+            // Factor -> Number | '(' Expr ')' | '-' Factor
+
+            function parseExpression() {
+                let left = parseTerm();
+                while (peek() === '+' || peek() === '-') {
+                    const op = consume();
+                    const right = parseTerm();
+                    left = (op === '+') ? left + right : left - right;
+                }
+                return left;
+            }
+
+            function parseTerm() {
+                let left = parseFactor();
+                while (peek() === '*' || peek() === '/') {
+                    const op = consume();
+                    const right = parseFactor();
+                    if (op === '*') left *= right;
+                    else left /= (right || 1); // Avoid division by zero
+                }
+                return left;
+            }
+
+            function parseFactor() {
+                const token = consume();
+                if (token === '(') {
+                    const val = parseExpression();
+                    if (peek() === ')') consume(); 
+                    return val;
+                }
+                if (token === '-') {
+                    return -parseFactor();
+                }
+                return parseFloat(token) || 0;
+            }
+
+            const result = parseExpression();
             return (typeof result === 'number' && isFinite(result)) ? result : 0;
         } catch (e) {
             console.error('Math evaluation error:', e);
