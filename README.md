@@ -1,8 +1,10 @@
-# Price Actually in BDT (প্রাইস অ্যাকচুয়ালি ইন বিডিটি) 💸
+# Price Actually in BDT 💸
 
 [English Version](README_EN.md)
 
 [![Latest Release](https://img.shields.io/github/v/release/MatrixRex/Price-Actually-BDT?label=Download&color=2e7d32&logo=github)](https://github.com/MatrixRex/Price-Actually-BDT/releases/latest)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/Matrixrex/Price-Actually-BDT/total)
+
 
 **অনলাইন শপিংয়ে "কত ডলার" মানে আসলে "ব্যাংক কত টাকা কাটবে" নিয়ে দুশ্চিন্তা?**
 
