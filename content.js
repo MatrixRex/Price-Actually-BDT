@@ -12,6 +12,7 @@ let currentSettings = {
 const ICONS = {
     settings: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>`,
     trash: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>`,
+    sum: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="9" x2="19" y2="9"></line><line x1="5" y1="15" x2="19" y2="15"></line></svg>`,
     close: `&times;`
 };
 
@@ -166,37 +167,182 @@ function createPopup(selectedText) {
     // 1. Get all currency codes from rates object
     const currencyCodes = rates ? Object.keys(rates).sort() : ['USD'];
     
-    // Currency Symbols Map (Comprehensive ~160 currencies)
-    const currencySymbols = {
-        AED: "د.إ", AFN: "؋", ALL: "L", AMD: "֏", ANG: "ƒ", AOA: "Kz", ARS: "$", AUD: "$", AWG: "ƒ", AZN: "₼",
-        BAM: "KM", BBD: "$", BDT: "৳", BGN: "лв", BHD: ".د.ب", BIF: "FBu", BMD: "$", BND: "$", BOB: "Bs.", BRL: "R$",
-        BSD: "$", BTC: "₿", BTN: "Nu.", BWP: "P", BYN: "Br", BZD: "BZ$", CAD: "$", CDF: "FC", CHF: "Fr", CLF: "UF",
-        CLP: "$", CNH: "¥", CNY: "¥", COP: "$", CRC: "₡", CUC: "$", CUP: "₱", CVE: "$", CZK: "Kč", DJF: "Fdj",
-        DKK: "kr", DOP: "RD$", DZD: "د.ج", EGP: "£", ERN: "Nfk", ETB: "Br", EUR: "€", FJD: "$", FKP: "£", GBP: "£",
-        GEL: "₾", GGP: "£", GHS: "GH₵", GIP: "£", GMD: "D", GNF: "FG", GTQ: "Q", GYD: "$", HKD: "$", HNL: "L",
-        HRK: "kn", HTG: "G", HUF: "Ft", IDR: "Rp", ILS: "₪", IMP: "£", INR: "₹", IQD: "ع.د", IRR: "﷼", ISK: "kr",
-        JEP: "£", JMD: "J$", JOD: "د.ا", JPY: "¥", KES: "KSh", KGS: "с", KHR: "៛", KMF: "CF", KPW: "₩", KRW: "₩",
-        KWD: "د.ك", KYD: "$", KZT: "₸", LAK: "₭", LBP: "ل.ل", LKR: "₨", LRD: "$", LSL: "L", LYD: "ل.د", MAD: "د.م.",
-        MDL: "L", MGA: "Ar", MKD: "ден", MMK: "K", MNT: "₮", MOP: "P", MRU: "UM", MUR: "₨", MVR: "Rf", MWK: "MK",
-        MXN: "$", MYR: "RM", MZN: "MT", NAD: "$", NGN: "₦", NIO: "C$", NOK: "kr", NPR: "₨", NZD: "$", OMR: "ر.ع.",
-        PAB: "B/.", PEN: "S/", PGK: "K", PHP: "₱", PKR: "₨", PLN: "zł", PYG: "₲", QAR: "ر.ق", RON: "lei", RSD: "дин.",
-        RUB: "₽", RWF: "FRw", SAR: "﷼", SBD: "$", SCR: "₨", SDG: "ج.س.", SEK: "kr", SGD: "$", SHP: "£", SLL: "Le",
-        SOS: "S", SRD: "$", SSP: "£", STD: "Db", STN: "Db", SVC: "$", SYP: "£", SZL: "L", THB: "฿", TJS: "SM",
-        TMT: "T", TND: "د.ت", TOP: "T$", TRY: "₺", TTD: "TT$", TWD: "NT$", TZS: "TSh", UAH: "₴", UGX: "USh", USD: "$",
-        UYU: "$U", UZS: "лв", VES: "Bs.S", VND: "₫", VUV: "VT", WST: "T", XAF: "FCFA", XAG: "oz", XAU: "oz", XCD: "$",
-        XDR: "SDR", XOF: "CFA", XPD: "oz", XPF: "₣", XPT: "oz", YER: "﷼", ZAR: "R", ZMW: "ZK", ZWL: "$"
+    // Currency Info Map (Codes, Symbols, Names, Countries)
+    const currencyInfo = {
+        AED: { symbol: "د.إ", name: "UAE Dirham", countries: ["United Arab Emirates"] },
+        AFN: { symbol: "؋", name: "Afghan Afghani", countries: ["Afghanistan"] },
+        ALL: { symbol: "L", name: "Albanian Lek", countries: ["Albania"] },
+        AMD: { symbol: "֏", name: "Armenian Dram", countries: ["Armenia"] },
+        ANG: { symbol: "ƒ", name: "Netherlands Antillean Guilder", countries: ["Curaçao", "Sint Maarten"] },
+        AOA: { symbol: "Kz", name: "Angolan Kwanza", countries: ["Angola"] },
+        ARS: { symbol: "$", name: "Argentine Peso", countries: ["Argentina"] },
+        AUD: { symbol: "$", name: "Australian Dollar", countries: ["Australia", "Christmas Island", "Cocos (Keeling) Islands", "Heard Island and McDonald Islands", "Kiribati", "Nauru", "Norfolk Island", "Tuvalu"] },
+        AWG: { symbol: "ƒ", name: "Aruban Florin", countries: ["Aruba"] },
+        AZN: { symbol: "₼", name: "Azerbaijani Manat", countries: ["Azerbaijan"] },
+        BAM: { symbol: "KM", name: "Bosnia-Herzegovina Convertible Mark", countries: ["Bosnia and Herzegovina"] },
+        BBD: { symbol: "$", name: "Barbadian Dollar", countries: ["Barbados"] },
+        BDT: { symbol: "৳", name: "Bangladeshi Taka", countries: ["Bangladesh"] },
+        BGN: { symbol: "лв", name: "Bulgarian Lev", countries: ["Bulgaria"] },
+        BHD: { symbol: ".د.ب", name: "Bahraini Dinar", countries: ["Bahrain"] },
+        BIF: { symbol: "FBu", name: "Burundian Franc", countries: ["Burundi"] },
+        BMD: { symbol: "$", name: "Bermudan Dollar", countries: ["Bermuda"] },
+        BND: { symbol: "$", name: "Brunei Dollar", countries: ["Brunei"] },
+        BOB: { symbol: "Bs.", name: "Bolivian Boliviano", countries: ["Bolivia"] },
+        BRL: { symbol: "R$", name: "Brazilian Real", countries: ["Brazil"] },
+        BSD: { symbol: "$", name: "Bahamian Dollar", countries: ["Bahamas"] },
+        BTC: { symbol: "₿", name: "Bitcoin", countries: [] },
+        BTN: { symbol: "Nu.", name: "Bhutanese Ngultrum", countries: ["Bhutan"] },
+        BWP: { symbol: "P", name: "Botswanan Pula", countries: ["Botswana"] },
+        BYN: { symbol: "Br", name: "Belarusian Ruble", countries: ["Belarus"] },
+        BZD: { symbol: "BZ$", name: "Belize Dollar", countries: ["Belize"] },
+        CAD: { symbol: "$", name: "Canadian Dollar", countries: ["Canada"] },
+        CDF: { symbol: "FC", name: "Congolese Franc", countries: ["Democratic Republic of the Congo"] },
+        CHF: { symbol: "Fr", name: "Swiss Franc", countries: ["Switzerland", "Liechtenstein"] },
+        CLP: { symbol: "$", name: "Chilean Peso", countries: ["Chile"] },
+        CNY: { symbol: "¥", name: "Chinese Yuan", countries: ["China"] },
+        COP: { symbol: "$", name: "Colombian Peso", countries: ["Colombia"] },
+        CRC: { symbol: "₡", name: "Costa Rican Colón", countries: ["Costa Rica"] },
+        CUP: { symbol: "₱", name: "Cuban Peso", countries: ["Cuba"] },
+        CVE: { symbol: "$", name: "Cape Verdean Escudo", countries: ["Cape Verde"] },
+        CZK: { symbol: "Kč", name: "Czech Koruna", countries: ["Czech Republic"] },
+        DJF: { symbol: "Fdj", name: "Djiboutian Franc", countries: ["Djibouti"] },
+        DKK: { symbol: "kr", name: "Danish Krone", countries: ["Denmark", "Faroe Islands", "Greenland"] },
+        DOP: { symbol: "RD$", name: "Dominican Peso", countries: ["Dominican Republic"] },
+        DZD: { symbol: "د.ج", name: "Algerian Dinar", countries: ["Algeria"] },
+        EGP: { symbol: "£", name: "Egyptian Pound", countries: ["Egypt"] },
+        ERN: { symbol: "Nfk", name: "Eritrean Nakfa", countries: ["Eritrea"] },
+        ETB: { symbol: "Br", name: "Ethiopian Birr", countries: ["Ethiopia"] },
+        EUR: { symbol: "€", name: "Euro", countries: ["Andorra", "Austria", "Belgium", "Cyprus", "Estonia", "Finland", "France", "Germany", "Greece", "Ireland", "Italy", "Latvia", "Lithuania", "Luxembourg", "Malta", "Monaco", "Montenegro", "Netherlands", "Portugal", "San Marino", "Slovakia", "Slovenia", "Spain", "Vatican City"] },
+        FJD: { symbol: "$", name: "Fijian Dollar", countries: ["Fiji"] },
+        FKP: { symbol: "£", name: "Falkland Islands Pound", countries: ["Falkland Islands"] },
+        GBP: { symbol: "£", name: "British Pound Sterling", countries: ["United Kingdom", "Isle of Man", "Jersey", "Guernsey"] },
+        GEL: { symbol: "₾", name: "Georgian Lari", countries: ["Georgia"] },
+        GHS: { symbol: "GH₵", name: "Ghanaian Cedi", countries: ["Ghana"] },
+        GIP: { symbol: "£", name: "Gibraltar Pound", countries: ["Gibraltar"] },
+        GMD: { symbol: "D", name: "Gambian Dalasi", countries: ["Gambia"] },
+        GNF: { symbol: "FG", name: "Guinean Franc", countries: ["Guinea"] },
+        GTQ: { symbol: "Q", name: "Guatemalan Quetzal", countries: ["Guatemala"] },
+        GYD: { symbol: "$", name: "Guyanese Dollar", countries: ["Guyana"] },
+        HKD: { symbol: "$", name: "Hong Kong Dollar", countries: ["Hong Kong"] },
+        HNL: { symbol: "L", name: "Honduran Lempira", countries: ["Honduras"] },
+        HRK: { symbol: "kn", name: "Croatian Kuna", countries: ["Croatia"] },
+        HTG: { symbol: "G", name: "Haitian Gourde", countries: ["Haiti"] },
+        HUF: { symbol: "Ft", name: "Hungarian Forint", countries: ["Hungary"] },
+        IDR: { symbol: "Rp", name: "Indonesian Rupiah", countries: ["Indonesia"] },
+        ILS: { symbol: "₪", name: "Israeli New Shekel", countries: ["Israel", "Palestine"] },
+        INR: { symbol: "₹", name: "Indian Rupee", countries: ["India", "Bhutan"] },
+        IQD: { symbol: "ع.د", name: "Iraqi Dinar", countries: ["Iraq"] },
+        IRR: { symbol: "﷼", name: "Iranian Rial", countries: ["Iran"] },
+        ISK: { symbol: "kr", name: "Icelandic Króna", countries: ["Iceland"] },
+        JMD: { symbol: "J$", name: "Jamaican Dollar", countries: ["Jamaica"] },
+        JOD: { symbol: "د.ا", name: "Jordanian Dinar", countries: ["Jordan"] },
+        JPY: { symbol: "¥", name: "Japanese Yen", countries: ["Japan"] },
+        KES: { symbol: "KSh", name: "Kenyan Shilling", countries: ["Kenya"] },
+        KGS: { symbol: "с", name: "Kyrgystani Som", countries: ["Kyrgyzstan"] },
+        KHR: { symbol: "៛", name: "Cambodian Riel", countries: ["Cambodia"] },
+        KMF: { symbol: "CF", name: "Comorian Franc", countries: ["Comoros"] },
+        KPW: { symbol: "₩", name: "North Korean Won", countries: ["North Korea"] },
+        KRW: { symbol: "₩", name: "South Korean Won", countries: ["South Korea"] },
+        KWD: { symbol: "د.ك", name: "Kuwaiti Dinar", countries: ["Kuwait"] },
+        KYD: { symbol: "$", name: "Cayman Islands Dollar", countries: ["Cayman Islands"] },
+        KZT: { symbol: "₸", name: "Kazakhstani Tenge", countries: ["Kazakhstan"] },
+        LAK: { symbol: "₭", name: "Laotian Kip", countries: ["Laos"] },
+        LBP: { symbol: "ل.ل", name: "Lebanese Pound", countries: ["Lebanon"] },
+        LKR: { symbol: "₨", name: "Sri Lankan Rupee", countries: ["Sri Lanka"] },
+        LRD: { symbol: "$", name: "Liberian Dollar", countries: ["Liberia"] },
+        LSL: { symbol: "L", name: "Lesotho Loti", countries: ["Lesotho"] },
+        LYD: { symbol: "ل.د", name: "Libyan Dinar", countries: ["Libya"] },
+        MAD: { symbol: "د.م.", name: "Moroccan Dirham", countries: ["Morocco", "Western Sahara"] },
+        MDL: { symbol: "L", name: "Moldovan Leu", countries: ["Moldova"] },
+        MGA: { symbol: "Ar", name: "Malagasy Ariary", countries: ["Madagascar"] },
+        MKD: { symbol: "ден", name: "Macedonian Denar", countries: ["North Macedonia"] },
+        MMK: { symbol: "K", name: "Myanmar Kyat", countries: ["Myanmar"] },
+        MNT: { symbol: "₮", name: "Mongolian Tugrik", countries: ["Mongolia"] },
+        MOP: { symbol: "P", name: "Macanese Pataca", countries: ["Macau"] },
+        MRU: { symbol: "UM", name: "Mauritanian Ouguiya", countries: ["Mauritania"] },
+        MUR: { symbol: "₨", name: "Mauritian Rupee", countries: ["Mauritius"] },
+        MVR: { symbol: "Rf", name: "Maldivian Rufiyaa", countries: ["Maldives"] },
+        MWK: { symbol: "MK", name: "Malawian Kwacha", countries: ["Malawi"] },
+        MXN: { symbol: "$", name: "Mexican Peso", countries: ["Mexico"] },
+        MYR: { symbol: "RM", name: "Malaysian Ringgit", countries: ["Malaysia"] },
+        MZN: { symbol: "MT", name: "Mozambican Metical", countries: ["Mozambique"] },
+        NAD: { symbol: "$", name: "Namibian Dollar", countries: ["Namibia"] },
+        NGN: { symbol: "₦", name: "Nigerian Naira", countries: ["Nigeria"] },
+        NIO: { symbol: "C$", name: "Nicaraguan Córdoba", countries: ["Nicaragua"] },
+        NOK: { symbol: "kr", name: "Norwegian Krone", countries: ["Norway", "Svalbard and Jan Mayen", "Bouvet Island"] },
+        NPR: { symbol: "₨", name: "Nepalese Rupee", countries: ["Nepal"] },
+        NZD: { symbol: "$", name: "New Zealand Dollar", countries: ["New Zealand", "Cook Islands", "Niue", "Pitcairn Islands", "Tokelau"] },
+        OMR: { symbol: "ر.ع.", name: "Omani Rial", countries: ["Oman"] },
+        PAB: { symbol: "B/.", name: "Panamanian Balboa", countries: ["Panama"] },
+        PEN: { symbol: "S/", name: "Peruvian Sol", countries: ["Peru"] },
+        PGK: { symbol: "K", name: "Papua New Guinean Kina", countries: ["Papua New Guinea"] },
+        PHP: { symbol: "₱", name: "Philippine Peso", countries: ["Philippines"] },
+        PKR: { symbol: "₨", name: "Pakistani Rupee", countries: ["Pakistan"] },
+        PLN: { symbol: "zł", name: "Polish Złoty", countries: ["Poland"] },
+        PYG: { symbol: "₲", name: "Paraguayan Guarani", countries: ["Paraguay"] },
+        QAR: { symbol: "ر.ق", name: "Qatari Rial", countries: ["Qatar"] },
+        RON: { symbol: "lei", name: "Romanian Leu", countries: ["Romania"] },
+        RSD: { symbol: "дин.", name: "Serbian Dinar", countries: ["Serbia"] },
+        RUB: { symbol: "₽", name: "Russian Ruble", countries: ["Russia"] },
+        RWF: { symbol: "FRw", name: "Rwandan Franc", countries: ["Rwanda"] },
+        SAR: { symbol: "﷼", name: "Saudi Riyal", countries: ["Saudi Arabia"] },
+        SBD: { symbol: "$", name: "Solomon Islands Dollar", countries: ["Solomon Islands"] },
+        SCR: { symbol: "₨", name: "Seychellois Rupee", countries: ["Seychelles"] },
+        SDG: { symbol: "ج.س.", name: "Sudanese Pound", countries: ["Sudan"] },
+        SEK: { symbol: "kr", name: "Swedish Krona", countries: ["Sweden"] },
+        SGD: { symbol: "$", name: "Singapore Dollar", countries: ["Singapore"] },
+        SHP: { symbol: "£", name: "Saint Helena Pound", countries: ["Saint Helena", "Ascension Island", "Tristan da Cunha"] },
+        SLL: { symbol: "Le", name: "Sierra Leonean Leone", countries: ["Sierra Leone"] },
+        SOS: { symbol: "S", name: "Somali Shilling", countries: ["Somalia"] },
+        SRD: { symbol: "$", name: "Surinamese Dollar", countries: ["Suriname"] },
+        SSP: { symbol: "£", name: "South Sudanese Pound", countries: ["South Sudan"] },
+        STN: { symbol: "Db", name: "São Tomé and Príncipe Dobra", countries: ["São Tomé and Príncipe"] },
+        SVC: { symbol: "$", name: "Salvadoran Colón", countries: ["El Salvador"] },
+        SYP: { symbol: "£", name: "Syrian Pound", countries: ["Syria"] },
+        SZL: { symbol: "L", name: "Swazi Lilangeni", countries: ["Eswatini"] },
+        THB: { symbol: "฿", name: "Thai Baht", countries: ["Thailand"] },
+        TJS: { symbol: "SM", name: "Tajikistani Somoni", countries: ["Tajikistan"] },
+        TMT: { symbol: "T", name: "Turkmenistani Manat", countries: ["Turkmenistan"] },
+        TND: { symbol: "د.ت", name: "Tunisian Dinar", countries: ["Tunisia"] },
+        TOP: { symbol: "T$", name: "Tongan Pa'anga", countries: ["Tonga"] },
+        TRY: { symbol: "₺", name: "Turkish Lira", countries: ["Turkey"] },
+        TTD: { symbol: "TT$", name: "Trinidad and Tobago Dollar", countries: ["Trinidad and Tobago"] },
+        TWD: { symbol: "NT$", name: "New Taiwan Dollar", countries: ["Taiwan"] },
+        TZS: { symbol: "TSh", name: "Tanzanian Shilling", countries: ["Tanzania"] },
+        UAH: { symbol: "₴", name: "Ukrainian Hryvnia", countries: ["Ukraine"] },
+        UGX: { symbol: "USh", name: "Ugandan Shilling", countries: ["Uganda"] },
+        USD: { symbol: "$", name: "United States Dollar", countries: ["United States", "American Samoa", "British Indian Ocean Territory", "British Virgin Islands", "Ecuador", "El Salvador", "Guam", "Marshall Islands", "Micronesia", "Northern Mariana Islands", "Palau", "Panama", "Puerto Rico", "Turks and Caicos Islands", "U.S. Virgin Islands"] },
+        UYU: { symbol: "$U", name: "Uruguayan Peso", countries: ["Uruguay"] },
+        UZS: { symbol: "лв", name: "Uzbekistan Som", countries: ["Uzbekistan"] },
+        VES: { symbol: "Bs.S", name: "Venezuelan Bolívar Soberano", countries: ["Venezuela"] },
+        VND: { symbol: "₫", name: "Vietnamese Dong", countries: ["Vietnam"] },
+        VUV: { symbol: "VT", name: "Vanuatu Vatu", countries: ["Vanuatu"] },
+        WST: { symbol: "T", name: "Samoan Tala", countries: ["Samoa"] },
+        XAF: { symbol: "FCFA", name: "Central African CFA Franc", countries: ["Cameroon", "Central African Republic", "Chad", "Congo", "Equatorial Guinea", "Gabon"] },
+        XCD: { symbol: "$", name: "East Caribbean Dollar", countries: ["Anguilla", "Antigua and Barbuda", "Dominica", "Grenada", "Montserrat", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines"] },
+        XOF: { symbol: "CFA", name: "West African CFA Franc", countries: ["Benin", "Burkina Faso", "Ivory Coast", "Guinea-Bissau", "Mali", "Niger", "Senegal", "Togo"] },
+        XPF: { symbol: "₣", name: "CFP Franc", countries: ["French Polynesia", "New Caledonia", "Wallis and Futuna"] },
+        YER: { symbol: "﷼", name: "Yemeni Rial", countries: ["Yemen"] },
+        ZAR: { symbol: "R", name: "South African Rand", countries: ["South Africa", "Lesotho", "Namibia"] },
+        ZMW: { symbol: "ZK", name: "Zambian Kwacha", countries: ["Zambia"] }
     };
 
     // 2. Prepare Currency Data for Custom Dropdown
     const currencyData = currencyCodes.map(code => {
-        const symbol = currencySymbols[code];
-        const label = symbol ? `${code} (${symbol})` : code;
-        return { code, label, symbol };
+        const info = currencyInfo[code] || { symbol: '', name: code, countries: [] };
+        const label = info.symbol ? `${code} (${info.symbol})` : code;
+        return { 
+            code, 
+            label, 
+            symbol: info.symbol, 
+            name: info.name, 
+            countries: info.countries.join(', ')
+        };
     });
 
     // Initial Display Label
-    const initialSymbol = currencySymbols[currency];
-    const initialLabel = initialSymbol ? `${currency} (${initialSymbol})` : currency;
+    const initialInfo = currencyInfo[currency] || { symbol: '', name: currency };
+    const initialLabel = initialInfo.symbol ? `${currency} (${initialInfo.symbol})` : currency;
 
     // HTML Structure
     const dateObj = new Date(lastUpdated);
@@ -211,7 +357,8 @@ function createPopup(selectedText) {
             <h3>Price Actually BDT</h3>
             <div class="header-actions">
                 <button class="icon-btn" id="btn-settings" title="Settings">${ICONS.settings}</button>
-                <button class="icon-btn trash-btn" id="btn-delete-all" title="Close All">${ICONS.trash}</button>
+                <button class="icon-btn" id="btn-sum" title="Total of All" style="display: none;">${ICONS.sum}</button>
+                <button class="icon-btn trash-btn" id="btn-delete-all" title="Close All" style="display: ${currentSettings.singleInstance ? 'none' : 'flex'}">${ICONS.trash}</button>
                 <button class="icon-btn close-btn" id="btn-close" title="Close">${ICONS.close}</button>
             </div>
         </div>
@@ -255,7 +402,7 @@ function createPopup(selectedText) {
         <div id="view-settings" class="view-settings">
             <div class="settings-title">Extension Settings</div>
             
-            <div class="setting-item">
+            <div class="setting-item" id="item-persistent" style="display: ${currentSettings.singleInstance ? 'flex' : 'none'}">
                 <label for="set-persistent">Persistent Popup <br><small style="color:#888">(Don't close on click outside)</small></label>
                 <label class="switch">
                     <input type="checkbox" id="set-persistent" ${currentSettings.persistent ? 'checked' : ''}>
@@ -331,7 +478,11 @@ function createPopup(selectedText) {
     const checkSingle = shadow.getElementById('set-single');
 
     checkSingle.addEventListener('change', (e) => {
-        if (!e.target.checked) {
+        const isSingle = e.target.checked;
+        btnDeleteAll.style.display = isSingle ? 'none' : 'flex';
+        shadow.getElementById('item-persistent').style.display = isSingle ? 'flex' : 'none';
+        
+        if (!isSingle) {
             checkPersistent.checked = true;
         } 
     });
@@ -348,8 +499,52 @@ function createPopup(selectedText) {
         }
     };
 
+    const btnSum = shadow.getElementById('btn-sum');
+
+    btnSum.onclick = () => {
+        const allHosts = Array.from(document.querySelectorAll('.price-actually-bdt-host'))
+            .filter(h => h.getAttribute('data-type') !== 'summary'); // Don't sum existing summaries
+        
+        let grandTotal = 0;
+        const items = [];
+
+        allHosts.forEach(host => {
+            const total = parseFloat(host.getAttribute('data-total-bdt') || '0');
+            const detail = host.getAttribute('data-detail');
+            if (total > 0 && detail) {
+                grandTotal += total;
+                items.push({ detail, total });
+            }
+        });
+
+        if (items.length > 1) {
+            createSummaryPopup(items, grandTotal);
+        }
+    };
+
+    function updateGlobalActions() {
+        const allHosts = Array.from(document.querySelectorAll('.price-actually-bdt-host'))
+            .filter(h => h.getAttribute('data-type') !== 'summary');
+        
+        const showSum = allHosts.length > 1;
+        
+        // Also update the summary instance visibility if any
+        const allTotalHosts = document.querySelectorAll('.price-actually-bdt-host');
+        allTotalHosts.forEach(host => {
+            if (host.shadowRoot) {
+                const sBtn = host.shadowRoot.getElementById('btn-sum');
+                if (sBtn) sBtn.style.display = showSum ? 'flex' : 'none';
+            }
+        });
+    }
+
+    // Call update on creation
+    setTimeout(updateGlobalActions, 0);
+
     btnClose.onclick = () => {
         shadowHost.remove();
+        document.removeEventListener('mousedown', closeOnClickOutside);
+        setTimeout(updateGlobalActions, 0);
     };
 
     btnDeleteAll.onclick = () => {
@@ -375,13 +570,15 @@ function createPopup(selectedText) {
     };
 
     setTimeout(() => {
-        document.addEventListener('click', closeOnClickOutside);
+        document.addEventListener('mousedown', closeOnClickOutside);
     }, 100);
 
     function closeOnClickOutside(e) {
         if (currentSettings.persistent) return;
-        if (shadowHost && document.body.contains(shadowHost) && e.target !== shadowHost) {
+        // Use composedPath to check if the click originated inside the shadow DOM
+        if (shadowHost && document.body.contains(shadowHost) && !e.composedPath().includes(shadowHost)) {
             shadowHost.remove();
+            document.removeEventListener('mousedown', closeOnClickOutside);
         }
     }
 
@@ -396,15 +593,45 @@ function createPopup(selectedText) {
     const listEl = shadow.getElementById('currency-list');
     let isDropdownOpen = false;
 
+    // Fuzzy Match Helper (Simple subsequence matching)
+    function isFuzzyMatch(str, pattern) {
+        pattern = pattern.toLowerCase();
+        str = str.toLowerCase();
+        let i = 0, j = 0;
+        while (i < str.length && j < pattern.length) {
+            if (str[i] === pattern[j]) j++;
+            i++;
+        }
+        return j === pattern.length;
+    }
+
     // Render List Function
     function renderCurrencyList(filterText = '') {
         const filter = filterText.toLowerCase();
         listEl.innerHTML = '';
         
-        const filtered = currencyData.filter(c => 
-            c.code.toLowerCase().includes(filter) || 
-            (c.symbol && c.symbol.toLowerCase().includes(filter))
-        );
+        let filtered = currencyData.filter(c => {
+            const searchStr = `${c.code} ${c.name} ${c.countries}`.toLowerCase();
+            return searchStr.includes(filter) || isFuzzyMatch(searchStr, filter);
+        });
+
+        // Sort by priority: Exact code match first, then string includes, then fuzzy
+        filtered.sort((a, b) => {
+            const aCode = a.code.toLowerCase();
+            const bCode = b.code.toLowerCase();
+            if (aCode === filter) return -1;
+            if (bCode === filter) return 1;
+            
+            const aName = a.name.toLowerCase();
+            const bName = b.name.toLowerCase();
+            const aInc = aName.includes(filter) || a.code.toLowerCase().includes(filter);
+            const bInc = bName.includes(filter) || b.code.toLowerCase().includes(filter);
+            
+            if (aInc && !bInc) return -1;
+            if (!aInc && bInc) return 1;
+            
+            return 0;
+        });
 
         if (filtered.length === 0) {
             const noRes = document.createElement('div');
@@ -418,11 +645,34 @@ function createPopup(selectedText) {
             filtered.forEach(c => {
                 const item = document.createElement('div');
                 item.className = 'currency-item';
+                item.style.flexDirection = 'column';
+                item.style.alignItems = 'flex-end';
+                item.style.gap = '2px';
                 if (c.code === currencyInp.value) item.classList.add('active');
                 
-                // Content: "Code (Symbol)" or just "Code"
-                const symbolText = c.symbol ? `<small>(${c.symbol})</small>` : '';
-                item.innerHTML = `${symbolText} ${c.code}`;
+                const mainInfo = document.createElement('div');
+                mainInfo.style.display = 'flex';
+                mainInfo.style.gap = '6px';
+                mainInfo.style.fontWeight = '600';
+                mainInfo.innerHTML = `${c.symbol ? `<small>(${c.symbol})</small>` : ''} ${c.code}`;
+                
+                const subInfo = document.createElement('div');
+                subInfo.style.fontSize = '10px';
+                subInfo.style.color = '#888';
+                subInfo.textContent = c.name;
+
+                const countryInfo = document.createElement('div');
+                countryInfo.style.fontSize = '9px';
+                countryInfo.style.color = '#aaa';
+                countryInfo.style.maxWidth = '200px';
+                countryInfo.style.overflow = 'hidden';
+                countryInfo.style.textOverflow = 'ellipsis';
+                countryInfo.style.whiteSpace = 'nowrap';
+                countryInfo.textContent = c.countries;
+                
+                item.appendChild(mainInfo);
+                item.appendChild(subInfo);
+                if (c.countries) item.appendChild(countryInfo);
                 
                 item.onclick = () => {
                     selectCurrency(c);
@@ -430,6 +680,7 @@ function createPopup(selectedText) {
                 listEl.appendChild(item);
             });
         }
+        listEl.scrollTop = 0;
     }
 
     function selectCurrency(cObj) {
@@ -554,6 +805,10 @@ function createPopup(selectedText) {
         shadow.getElementById('res-base').textContent = totalBdtNoTax.toLocaleString('en-BD', { maximumFractionDigits: 0 });
         shadow.getElementById('res-tax').textContent = taxAmount.toLocaleString('en-BD', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         shadow.getElementById('res-rate').textContent = `1 ${selectedCurr} = ${effectiveRate.toFixed(2)} BDT`;
+        
+        // Save current BDT total to host for global consumption
+        shadowHost.setAttribute('data-total-bdt', totalBdt.toString());
+        shadowHost.setAttribute('data-detail', `${selectedCurr} ${amt.toLocaleString()} (${taxRate}%)`);
     }
 
     function safeEval(str) {
@@ -620,17 +875,22 @@ function createPopup(selectedText) {
         const amount = numberMatch ? parseFloat(numberMatch[0].replace(/,/g, '')) : 0;
         
         let currency = 'USD';
-        // Expanded Currency Detection for common symbols
-        if (text.includes('€')) currency = 'EUR';
-        if (text.includes('£')) currency = 'GBP';
-        if (text.includes('₹') || text.includes('Rs')) currency = 'INR';
-        if (text.includes('¥')) currency = 'JPY';
-        if (text.includes('RM')) currency = 'MYR';
-        if (text.includes('﷼')) currency = 'SAR';
-        if (text.includes('د.إ')) currency = 'AED';
-        if (text.includes('C$')) currency = 'CAD';
-        if (text.includes('A$')) currency = 'AUD';
-        if (text.includes('৳') || text.includes('Tk')) currency = 'BDT';
+        const lowerText = text.toLowerCase();
+
+        // Expanded Currency Detection for common symbols and names
+        if (text.includes('€') || lowerText.includes('euro')) currency = 'EUR';
+        else if (text.includes('£') || lowerText.includes('pound')) currency = 'GBP';
+        else if (text.includes('₹') || lowerText.includes('inr') || lowerText.includes('rupee')) currency = 'INR';
+        else if (text.includes('¥') || lowerText.includes('yen') || lowerText.includes('yuan')) {
+            currency = (text.includes('¥') && (lowerText.includes('yuan') || lowerText.includes('china'))) ? 'CNY' : 'JPY';
+        }
+        else if (lowerText.includes('rm')) currency = 'MYR';
+        else if (text.includes('﷼') || lowerText.includes('riyal')) currency = 'SAR';
+        else if (text.includes('د.إ') || lowerText.includes('dirham')) currency = 'AED';
+        else if (text.includes('C$') || lowerText.includes('cad')) currency = 'CAD';
+        else if (text.includes('A$') || lowerText.includes('aud')) currency = 'AUD';
+        else if (text.includes('৳') || text.includes('tk') || lowerText.includes('taka')) currency = 'BDT';
+        else if (text.includes('$')) currency = 'USD'; // Default $ to USD if nothing else matched
 
         // Check if detected currency exists in rates, otherwise default to USD
         if (rates && !rates[currency]) {
@@ -638,5 +898,119 @@ function createPopup(selectedText) {
         }
 
         return { amount, currency };
+    }
+
+    function createSummaryPopup(items, grandTotal) {
+        if (currentSettings.singleInstance) {
+             const existingHosts = document.querySelectorAll('.price-actually-bdt-host');
+             existingHosts.forEach(el => el.remove());
+        }
+
+        const shadowHost = document.createElement('div');
+        shadowHost.classList.add('price-actually-bdt-host');
+        shadowHost.setAttribute('data-type', 'summary');
+        shadowHost.setAttribute('data-darkreader-ignore', 'true');
+        
+        const shadow = shadowHost.attachShadow({ mode: 'open' });
+
+        const style = document.createElement('style');
+        style.textContent = `
+            :host { all: initial; font-family: 'Segoe UI', sans-serif; }
+            .bdt-box {
+                position: fixed; bottom: 20px; right: 20px; width: 300px;
+                background: #ffffff !important; color: #333 !important;
+                z-index: 2147483647; border-radius: 12px;
+                box-shadow: 0 4px 25px rgba(0,0,0,0.2); border: 1px solid #ddd;
+                padding: 16px; box-sizing: border-box; animation: slideIn 0.3s ease-out;
+            }
+            @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+            .header {
+                display: flex; justify-content: space-between; align-items: center;
+                border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 12px;
+                cursor: move;
+            }
+            h3 { margin: 0; font-size: 15px; font-weight: 700; color: #2e7d32; }
+            .icon-btn {
+                cursor: pointer; color: #aaa; background: none; border: none; padding: 4px; 
+                display: flex; align-items: center; justify-content: center;
+                border-radius: 4px; transition: 0.2s;
+            }
+            .icon-btn:hover { color: #d32f2f; background: #ffebee; }
+            
+            .summary-list {
+                max-height: 200px; overflow-y: auto; margin-bottom: 12px;
+                border-bottom: 1px solid #f5f5f5;
+            }
+            .summary-item {
+                display: flex; justify-content: space-between; align-items: center;
+                padding: 6px 0; font-size: 12px; border-bottom: 1px dashed #eee;
+            }
+            .summary-item:last-child { border-bottom: none; }
+            .item-detail { color: #666; font-weight: 500; }
+            .item-bdt { color: #333; font-weight: 600; }
+
+            .total-box {
+                background: #f1f8e9; border: 1px solid #c8e6c9; border-radius: 8px;
+                padding: 12px; text-align: center;
+            }
+            .total-label { font-size: 10px; color: #558b2f; font-weight: bold; text-transform: uppercase; margin-bottom: 4px; }
+            .total-val { font-size: 24px; font-weight: 800; color: #2e7d32; }
+        `;
+
+        const container = document.createElement('div');
+        container.classList.add('bdt-box');
+        
+        let listHtml = items.map(item => `
+            <div class="summary-item">
+                <span class="item-detail">${item.detail}</span>
+                <span class="item-bdt">${item.total.toLocaleString('en-BD', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} ৳</span>
+            </div>
+        `).join('');
+
+        container.innerHTML = `
+            <div class="header" id="drag-handle">
+                <h3>Combined Calculation</h3>
+                <button class="icon-btn close-btn" id="btn-close" title="Close">${ICONS.close}</button>
+            </div>
+            <div class="summary-list">
+                ${listHtml}
+            </div>
+            <div class="total-box">
+                <div class="total-label">Grand Total</div>
+                <div class="total-val">${grandTotal.toLocaleString('en-BD', { style: 'currency', currency: 'BDT' })}</div>
+            </div>
+        `;
+
+        shadow.appendChild(style);
+        shadow.appendChild(container);
+        document.body.appendChild(shadowHost);
+
+        // Dragging & Close
+        const header = shadow.getElementById('drag-handle');
+        header.onmousedown = (e) => {
+            if (e.target.closest('button')) return;
+            let isDragging = true;
+            const startX = e.clientX - container.getBoundingClientRect().left;
+            const startY = e.clientY - container.getBoundingClientRect().top;
+            container.style.bottom = 'auto'; container.style.right = 'auto';
+            container.style.left = (e.clientX - startX) + 'px'; container.style.top = (e.clientY - startY) + 'px';
+            
+            const move = (me) => {
+                if (!isDragging) return;
+                container.style.left = (me.clientX - startX) + 'px';
+                container.style.top = (me.clientY - startY) + 'px';
+            };
+            const up = () => {
+                isDragging = false;
+                window.removeEventListener('mousemove', move);
+                window.removeEventListener('mouseup', up);
+            };
+            window.addEventListener('mousemove', move);
+            window.addEventListener('mouseup', up);
+        };
+
+        shadow.getElementById('btn-close').onclick = () => {
+            shadowHost.remove();
+        };
     }
 }
